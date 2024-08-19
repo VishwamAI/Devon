@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from devon_agent.config import AgentConfig, Config
-from devon_agent.model import (AnthropicModel, GroqModel, OllamaModel,
+from devon_agent.model import (AnthropicModel, GeminiModel, GroqModel, OllamaModel,
                                OpenAiModel)
 
 if TYPE_CHECKING:
@@ -30,4 +30,5 @@ DEFAULT_MODELS = {
     "llama-3-70b": GroqModel,
     "ollama/deepseek-coder:6.7b": OllamaModel,
     "gpt-4o-mini": OpenAiModel,
+    "gemini-pro": GeminiModel,
 }
