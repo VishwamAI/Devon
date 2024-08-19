@@ -8,6 +8,8 @@ from litellm import completion
 logger = logging.getLogger("LiteLLM")
 logger.disabled = True
 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
 
 @dataclass(frozen=False)
 class ModelArguments:
@@ -214,3 +216,38 @@ class OllamaModel:
 
         response = model_completion.choices[0].message.content.rstrip("</command>")
         return response + "</command>"
+
+
+class GeminiModel:
+    MODELS = {
+        "gemini-pro": {
+            "max_tokens": 4096,
+        }
+    }
+
+    SHORTCUTS = {
+        "gemini": "gemini-pro",
+    }
+
+    def __init__(self, args: ModelArguments):
+        self.args = args
+        self.api_model = self.SHORTCUTS.get(args.model_name, args.model_name)
+        self.model_metadata = self.MODELS[self.api_model]
+        self.prompt_type = "gemini"
+        if args.api_key is not None:
+            self.api_key = args.api_key
+        else:
+            self.api_key = os.getenv("GEMINI_API_KEY")
+
+    def query(self, messages: list[dict[str, str]], system_message: str = "") -> str:
+        model_completion = completion(
+            messages=[{"role": "system", "content": system_message}] + messages,
+            max_tokens=self.model_metadata["max_tokens"],
+            model=self.api_model,
+            temperature=self.args.temperature,
+            stop=["</COMMAND>"],
+            api_key=self.api_key,
+        )
+
+        response = model_completion.choices[0].message.content.rstrip("</COMMAND>")
+        return response + "</COMMAND>"
